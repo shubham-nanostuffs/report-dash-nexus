@@ -12,6 +12,10 @@ import { DataTable } from "@/components/analytics/DataTable";
 import { Filters } from "./Filters";
 import { reportData, filterOptions } from "@/data/sampleData";
 import { AnalyticsData } from "@/types/analytics";
+import {
+  transformDistrictFeedbackData,
+  getDistrictFeedbackFilterOptions,
+} from "@/data/districtFeedbackTransform";
 
 export function AnalyticsDashboard() {
   const [activeFilters, setActiveFilters] = useState({
@@ -96,14 +100,14 @@ export function AnalyticsDashboard() {
     };
   };
 
-  const report1Stats = getReport1Stats(reportData.report1);
+  const report1Stats = getReport1Stats(transformDistrictFeedbackData());
   const report2Stats = getStats(reportData.report2);
   const report3Stats = getStats(reportData.report3);
   const report4Stats = getStats(reportData.report4);
 
   const filteredData = useMemo(
     () => ({
-      report1: filterData(reportData.report1),
+      report1: filterData(transformDistrictFeedbackData()),
       report2: filterData(reportData.report2),
       report3: filterData(reportData.report3),
       report4: filterData(reportData.report4),
@@ -167,7 +171,7 @@ export function AnalyticsDashboard() {
             </CardHeader>
             <CardContent>
               <Filters
-                filterOptions={filterOptions}
+                filterOptions={getDistrictFeedbackFilterOptions()}
                 onFiltersChange={setActiveFilters}
               />
             </CardContent>

@@ -48,6 +48,22 @@ export interface AnalyticsData {
   bad: number;
 }
 
+export interface DistrictFeedbackData {
+  State: string;
+  District: string;
+  no_of_consumers: number;
+  issue_faced: number;
+  higher_meter_reading: number;
+  app_installed: number;
+  feature_available: number;
+  Bill_is_easy_to_understand: number;
+  Mobile_app_easy_to_use: number;
+  Overall_Experience_Excellent: number;
+  Overall_Experience_Good: number;
+  Overall_Experience_Bad: number;
+  Overall_Experience_Average: number;
+}
+
 export interface FilterOptions {
   states: string[];
   districts: string[];
