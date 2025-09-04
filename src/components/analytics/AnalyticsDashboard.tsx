@@ -1,8 +1,14 @@
 import { useState, useMemo } from "react";
 import { BarChart3, TrendingUp, Users, DollarSign } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { DataTable } from "./DataTable";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { DataTable } from "@/components/analytics/DataTable";
 import { Filters } from "./Filters";
 import { reportData, filterOptions } from "@/data/sampleData";
 import { AnalyticsData } from "@/types/analytics";
@@ -16,36 +22,94 @@ export function AnalyticsDashboard() {
 
   const filterData = (data: AnalyticsData[]) => {
     return data.filter((item) => {
-      const stateMatch = activeFilters.states.length === 0 || activeFilters.states.includes(item.state);
-      const districtMatch = activeFilters.districts.length === 0 || activeFilters.districts.includes(item.district);
-      const amispMatch = activeFilters.amisps.length === 0 || activeFilters.amisps.includes(item.amisp);
-      
+      const stateMatch =
+        activeFilters.states.length === 0 ||
+        activeFilters.states.includes(item.state);
+      const districtMatch =
+        activeFilters.districts.length === 0 ||
+        activeFilters.districts.includes(item.district);
+      const amispMatch =
+        activeFilters.amisps.length === 0 ||
+        activeFilters.amisps.includes(item.amisp);
+
       return stateMatch && districtMatch && amispMatch;
     });
   };
 
   const getStats = (data: AnalyticsData[]) => {
     const filteredData = filterData(data);
-    
+
     return {
-      totalRevenue: filteredData.reduce((sum, item) => sum + item.revenue, 0),
-      totalUsers: filteredData.reduce((sum, item) => sum + item.users, 0),
-      avgGrowth: filteredData.length > 0 ? filteredData.reduce((sum, item) => sum + item.growth, 0) / filteredData.length : 0,
-      activeCount: filteredData.filter(item => item.status === 'Active').length,
+      totalConsumers: filteredData.reduce(
+        (sum, item) => sum + item.no_of_consumers,
+        0
+      ),
+      totalResponses: filteredData.reduce(
+        (sum, item) => sum + item.consumers_submitted_response,
+        0
+      ),
+      totalMeterIssues: filteredData.reduce(
+        (sum, item) => sum + item.issue_faced,
+        0
+      ),
+      totalAppInstalled: filteredData.reduce(
+        (sum, item) =>
+          sum + (item.consumers_submitted_response - item.not_installed),
+        0
+      ),
     };
   };
 
-  const report1Stats = getStats(reportData.report1);
+  const getReport1Stats = (data: AnalyticsData[]) => {
+    const filteredData = filterData(data);
+
+    return {
+      totalConsumers: filteredData.reduce(
+        (sum, item) => sum + item.no_of_consumers,
+        0
+      ),
+      totalMessagesAttempted: filteredData.reduce(
+        (sum, item) => sum + item.messages_attempted,
+        0
+      ),
+      totalMessagesDelivered: filteredData.reduce(
+        (sum, item) => sum + item.messages_delivered,
+        0
+      ),
+      totalMessagesRead: filteredData.reduce(
+        (sum, item) => sum + item.messages_read,
+        0
+      ),
+      totalResponses: filteredData.reduce(
+        (sum, item) => sum + item.consumers_submitted_response,
+        0
+      ),
+      totalMeterIssues: filteredData.reduce(
+        (sum, item) => sum + item.issue_faced,
+        0
+      ),
+      totalAppInstalled: filteredData.reduce(
+        (sum, item) =>
+          sum + (item.consumers_submitted_response - item.not_installed),
+        0
+      ),
+    };
+  };
+
+  const report1Stats = getReport1Stats(reportData.report1);
   const report2Stats = getStats(reportData.report2);
   const report3Stats = getStats(reportData.report3);
   const report4Stats = getStats(reportData.report4);
 
-  const filteredData = useMemo(() => ({
-    report1: filterData(reportData.report1),
-    report2: filterData(reportData.report2),
-    report3: filterData(reportData.report3),
-    report4: filterData(reportData.report4),
-  }), [activeFilters]);
+  const filteredData = useMemo(
+    () => ({
+      report1: filterData(reportData.report1),
+      report2: filterData(reportData.report2),
+      report3: filterData(reportData.report3),
+      report4: filterData(reportData.report4),
+    }),
+    [activeFilters]
+  );
 
   return (
     <div className="min-h-screen bg-gradient-dashboard">
@@ -57,314 +121,352 @@ export function AnalyticsDashboard() {
               <BarChart3 className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Analytics Dashboard</h1>
-              <p className="text-muted-foreground">Comprehensive data insights and reporting</p>
+              <h1 className="text-3xl font-bold text-foreground">
+                Smart Citizen Survey
+              </h1>
+              <p className="text-muted-foreground">Dashboard</p>
             </div>
           </div>
         </div>
 
-        {/* Filters */}
-        <Card className="mb-6 shadow-card bg-white/80 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-lg">Filters</CardTitle>
-            <CardDescription>
-              Apply filters to refine your data across all reports
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Filters
-              filterOptions={filterOptions}
-              onFiltersChange={setActiveFilters}
-            />
-          </CardContent>
-        </Card>
-
         {/* Reports Tabs */}
         <Tabs defaultValue="report1" className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-6 bg-white shadow-card">
-            <TabsTrigger 
-              value="report1" 
+            <TabsTrigger
+              value="report1"
               className="data-[state=active]:bg-analytics-primary data-[state=active]:text-white font-medium"
             >
-              Report 1
+              District Wise Feedback Collection
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="report2"
               className="data-[state=active]:bg-analytics-primary data-[state=active]:text-white font-medium"
             >
               Report 2
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="report3"
               className="data-[state=active]:bg-analytics-primary data-[state=active]:text-white font-medium"
             >
               Report 3
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="report4"
               className="data-[state=active]:bg-analytics-primary data-[state=active]:text-white font-medium"
             >
               Report 4
             </TabsTrigger>
           </TabsList>
-
+          {/* Filters */}
+          <Card className="mb-6 shadow-card bg-white/80 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-lg">Filters</CardTitle>
+              <CardDescription>
+                Apply filters to refine your data across all reports
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Filters
+                filterOptions={filterOptions}
+                onFiltersChange={setActiveFilters}
+              />
+            </CardContent>
+          </Card>
           {/* Report 1 */}
           <TabsContent value="report1" className="space-y-6">
             {/* Stats Cards */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card className="shadow-card bg-white/80 backdrop-blur-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Total Consumers
+                  </CardTitle>
+                  <Users className="h-4 w-4 text-analytics-primary" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {report1Stats.totalConsumers.toLocaleString()}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card bg-white/80 backdrop-blur-sm">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Total Responses
+                  </CardTitle>
+                  <BarChart3 className="h-4 w-4 text-analytics-accent" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {report1Stats.totalResponses.toLocaleString()}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card bg-white/80 backdrop-blur-sm">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Meter Issues
+                  </CardTitle>
+                  <TrendingUp className="h-4 w-4 text-analytics-warning" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {report1Stats.totalMeterIssues.toLocaleString()}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card bg-white/80 backdrop-blur-sm">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    App Installed
+                  </CardTitle>
                   <DollarSign className="h-4 w-4 text-analytics-primary" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {new Intl.NumberFormat('en-IN', { 
-                      style: 'currency', 
-                      currency: 'INR',
-                      maximumFractionDigits: 0 
-                    }).format(report1Stats.totalRevenue)}
+                    {report1Stats.totalAppInstalled.toLocaleString()}
                   </div>
                 </CardContent>
               </Card>
-              
-              <Card className="shadow-card bg-white/80 backdrop-blur-sm">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-                  <Users className="h-4 w-4 text-analytics-accent" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{report1Stats.totalUsers.toLocaleString()}</div>
-                </CardContent>
-              </Card>
-              
-              <Card className="shadow-card bg-white/80 backdrop-blur-sm">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Avg Growth</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-analytics-warning" />
-                </CardHeader>
-                <CardContent>
-                  <div className={`text-2xl font-bold ${report1Stats.avgGrowth >= 0 ? 'text-analytics-accent' : 'text-analytics-error'}`}>
-                    {report1Stats.avgGrowth >= 0 ? '+' : ''}{report1Stats.avgGrowth.toFixed(1)}%
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="shadow-card bg-white/80 backdrop-blur-sm">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Active Items</CardTitle>
-                  <BarChart3 className="h-4 w-4 text-analytics-primary" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{report1Stats.activeCount}</div>
-                </CardContent>
-              </Card>
-            </div>
+            </div> */}
 
             <Card className="shadow-card bg-white/80 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle>Report 1 Data</CardTitle>
+                <CardTitle>District Wise Feedback Collection</CardTitle>
                 <CardDescription>
-                  Detailed analytics data with advanced filtering and export capabilities
+                  Detailed analytics data with advanced filtering and export
+                  capabilities
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <DataTable data={filteredData.report1} title="Report 1" />
+                <DataTable data={filteredData.report1} />
               </CardContent>
             </Card>
           </TabsContent>
 
           {/* Report 2 */}
           <TabsContent value="report2" className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card className="shadow-card bg-white/80 backdrop-blur-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Total Consumers
+                  </CardTitle>
                   <DollarSign className="h-4 w-4 text-analytics-primary" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {new Intl.NumberFormat('en-IN', { 
-                      style: 'currency', 
-                      currency: 'INR',
-                      maximumFractionDigits: 0 
-                    }).format(report2Stats.totalRevenue)}
+                    {report2Stats.totalConsumers.toLocaleString()}
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="shadow-card bg-white/80 backdrop-blur-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Total Responses
+                  </CardTitle>
                   <Users className="h-4 w-4 text-analytics-accent" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{report2Stats.totalUsers.toLocaleString()}</div>
-                </CardContent>
-              </Card>
-              
-              <Card className="shadow-card bg-white/80 backdrop-blur-sm">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Avg Growth</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-analytics-warning" />
-                </CardHeader>
-                <CardContent>
-                  <div className={`text-2xl font-bold ${report2Stats.avgGrowth >= 0 ? 'text-analytics-accent' : 'text-analytics-error'}`}>
-                    {report2Stats.avgGrowth >= 0 ? '+' : ''}{report2Stats.avgGrowth.toFixed(1)}%
+                  <div className="text-2xl font-bold">
+                    {report2Stats.totalResponses.toLocaleString()}
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="shadow-card bg-white/80 backdrop-blur-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Active Items</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Meter Issues
+                  </CardTitle>
+                  <TrendingUp className="h-4 w-4 text-analytics-warning" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {report2Stats.totalMeterIssues.toLocaleString()}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card bg-white/80 backdrop-blur-sm">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    App Installed
+                  </CardTitle>
                   <BarChart3 className="h-4 w-4 text-analytics-primary" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{report2Stats.activeCount}</div>
+                  <div className="text-2xl font-bold">
+                    {report2Stats.totalAppInstalled.toLocaleString()}
+                  </div>
                 </CardContent>
               </Card>
-            </div>
+            </div> */}
 
             <Card className="shadow-card bg-white/80 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle>Report 2 Data</CardTitle>
                 <CardDescription>
-                  Detailed analytics data with advanced filtering and export capabilities
+                  Detailed analytics data with advanced filtering and export
+                  capabilities
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <DataTable data={filteredData.report2} title="Report 2" />
+                <DataTable data={filteredData.report2} />
               </CardContent>
             </Card>
           </TabsContent>
 
           {/* Report 3 */}
           <TabsContent value="report3" className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {/* Stats Cards - Commented Out */}
+            {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card className="shadow-card bg-white/80 backdrop-blur-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Total Consumers
+                  </CardTitle>
                   <DollarSign className="h-4 w-4 text-analytics-primary" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {new Intl.NumberFormat('en-IN', { 
-                      style: 'currency', 
-                      currency: 'INR',
-                      maximumFractionDigits: 0 
-                    }).format(report3Stats.totalRevenue)}
+                    {report3Stats.totalConsumers.toLocaleString()}
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="shadow-card bg-white/80 backdrop-blur-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Total Responses
+                  </CardTitle>
                   <Users className="h-4 w-4 text-analytics-accent" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{report3Stats.totalUsers.toLocaleString()}</div>
-                </CardContent>
-              </Card>
-              
-              <Card className="shadow-card bg-white/80 backdrop-blur-sm">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Avg Growth</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-analytics-warning" />
-                </CardHeader>
-                <CardContent>
-                  <div className={`text-2xl font-bold ${report3Stats.avgGrowth >= 0 ? 'text-analytics-accent' : 'text-analytics-error'}`}>
-                    {report3Stats.avgGrowth >= 0 ? '+' : ''}{report3Stats.avgGrowth.toFixed(1)}%
+                  <div className="text-2xl font-bold">
+                    {report3Stats.totalResponses.toLocaleString()}
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="shadow-card bg-white/80 backdrop-blur-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Active Items</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Meter Issues
+                  </CardTitle>
+                  <TrendingUp className="h-4 w-4 text-analytics-warning" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {report3Stats.totalMeterIssues.toLocaleString()}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card bg-white/80 backdrop-blur-sm">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    App Installed
+                  </CardTitle>
                   <BarChart3 className="h-4 w-4 text-analytics-primary" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{report3Stats.activeCount}</div>
+                  <div className="text-2xl font-bold">
+                    {report3Stats.totalAppInstalled.toLocaleString()}
+                  </div>
                 </CardContent>
               </Card>
-            </div>
+            </div> */}
 
             <Card className="shadow-card bg-white/80 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle>Report 3 Data</CardTitle>
                 <CardDescription>
-                  Detailed analytics data with advanced filtering and export capabilities
+                  Detailed analytics data with advanced filtering and export
+                  capabilities
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <DataTable data={filteredData.report3} title="Report 3" />
+                <DataTable data={filteredData.report3} />
               </CardContent>
             </Card>
           </TabsContent>
 
           {/* Report 4 */}
           <TabsContent value="report4" className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {/* Stats Cards - Commented Out */}
+            {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card className="shadow-card bg-white/80 backdrop-blur-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Total Consumers
+                  </CardTitle>
                   <DollarSign className="h-4 w-4 text-analytics-primary" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {new Intl.NumberFormat('en-IN', { 
-                      style: 'currency', 
-                      currency: 'INR',
-                      maximumFractionDigits: 0 
-                    }).format(report4Stats.totalRevenue)}
+                    {report4Stats.totalConsumers.toLocaleString()}
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="shadow-card bg-white/80 backdrop-blur-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Total Responses
+                  </CardTitle>
                   <Users className="h-4 w-4 text-analytics-accent" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{report4Stats.totalUsers.toLocaleString()}</div>
-                </CardContent>
-              </Card>
-              
-              <Card className="shadow-card bg-white/80 backdrop-blur-sm">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Avg Growth</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-analytics-warning" />
-                </CardHeader>
-                <CardContent>
-                  <div className={`text-2xl font-bold ${report4Stats.avgGrowth >= 0 ? 'text-analytics-accent' : 'text-analytics-error'}`}>
-                    {report4Stats.avgGrowth >= 0 ? '+' : ''}{report4Stats.avgGrowth.toFixed(1)}%
+                  <div className="text-2xl font-bold">
+                    {report4Stats.totalResponses.toLocaleString()}
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="shadow-card bg-white/80 backdrop-blur-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Active Items</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Meter Issues
+                  </CardTitle>
+                  <TrendingUp className="h-4 w-4 text-analytics-warning" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {report4Stats.totalMeterIssues.toLocaleString()}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card bg-white/80 backdrop-blur-sm">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    App Installed
+                  </CardTitle>
                   <BarChart3 className="h-4 w-4 text-analytics-primary" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{report4Stats.activeCount}</div>
+                  <div className="text-2xl font-bold">
+                    {report4Stats.totalAppInstalled.toLocaleString()}
+                  </div>
                 </CardContent>
               </Card>
-            </div>
+            </div> */}
 
             <Card className="shadow-card bg-white/80 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle>Report 4 Data</CardTitle>
                 <CardDescription>
-                  Detailed analytics data with advanced filtering and export capabilities
+                  Detailed analytics data with advanced filtering and export
+                  capabilities
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <DataTable data={filteredData.report4} title="Report 4" />
+                <DataTable data={filteredData.report4} />
               </CardContent>
             </Card>
           </TabsContent>
