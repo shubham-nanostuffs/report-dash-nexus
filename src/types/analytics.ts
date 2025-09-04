@@ -3,6 +3,16 @@ export interface AnalyticsData {
   state: string;
   district: string;
   amisp: string;
+  consumers: number;
+  messagesAttempted: number;
+  messagesDelivered: number;
+  messagesRead: number;
+  consumersClicked: number;
+  consumersSubmitted: number;
+  higherMeterReading: number;
+  amountCharged: number;
+  installationNotProper: number;
+  mobileAppNotWorking: number;
   revenue: number;
   users: number;
   growth: number;

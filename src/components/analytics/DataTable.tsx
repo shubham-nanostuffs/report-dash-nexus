@@ -48,33 +48,6 @@ export function DataTable({ data, title }: DataTableProps) {
   const columns: ColumnDef<AnalyticsData>[] = useMemo(
     () => [
       {
-        accessorKey: "id",
-        header: ({ column }) => (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="h-auto p-0 font-semibold hover:bg-transparent"
-          >
-            ID
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        ),
-        cell: ({ row }) => <div className="font-medium">{row.getValue("id")}</div>,
-      },
-      {
-        accessorKey: "state",
-        header: ({ column }) => (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="h-auto p-0 font-semibold hover:bg-transparent"
-          >
-            State
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        ),
-      },
-      {
         accessorKey: "district",
         header: ({ column }) => (
           <Button
@@ -101,132 +74,190 @@ export function DataTable({ data, title }: DataTableProps) {
         ),
       },
       {
-        accessorKey: "revenue",
+        accessorKey: "consumers",
         header: ({ column }) => (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             className="h-auto p-0 font-semibold hover:bg-transparent justify-end"
           >
-            Revenue
+            No. of consumers
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         ),
         cell: ({ row }) => {
-          const amount = parseFloat(row.getValue("revenue"));
-          const formatted = new Intl.NumberFormat("en-IN", {
-            style: "currency",
-            currency: "INR",
-          }).format(amount);
-          return <div className="text-right font-medium">{formatted}</div>;
+          const consumers = parseInt(row.getValue("consumers"));
+          return <div className="text-right font-medium">{consumers.toLocaleString()}</div>;
         },
       },
       {
-        accessorKey: "users",
+        accessorKey: "messagesAttempted",
         header: ({ column }) => (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             className="h-auto p-0 font-semibold hover:bg-transparent justify-end"
           >
-            Users
+            No. of messages attempted (% w.r.t. no. of consumers)
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         ),
         cell: ({ row }) => {
-          const users = parseInt(row.getValue("users"));
-          return <div className="text-right font-medium">{users.toLocaleString()}</div>;
+          const messages = parseInt(row.getValue("messagesAttempted"));
+          const consumers = parseInt(row.getValue("consumers"));
+          const percentage = Math.round((messages / consumers) * 100);
+          return <div className="text-right font-medium">{messages.toLocaleString()} ({percentage}%)</div>;
         },
       },
       {
-        accessorKey: "growth",
+        accessorKey: "messagesDelivered",
         header: ({ column }) => (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             className="h-auto p-0 font-semibold hover:bg-transparent justify-end"
           >
-            Growth %
+            No. of messages delivered (% w.r.t. attempted)
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         ),
         cell: ({ row }) => {
-          const growth = parseFloat(row.getValue("growth"));
-          return (
-            <div className={`text-right font-medium ${growth >= 0 ? "text-analytics-accent" : "text-analytics-error"}`}>
-              {growth >= 0 ? "+" : ""}{growth}%
-            </div>
-          );
+          const delivered = parseInt(row.getValue("messagesDelivered"));
+          const attempted = parseInt(row.getValue("messagesAttempted"));
+          const percentage = Math.round((delivered / attempted) * 100);
+          return <div className="text-right font-medium">{delivered.toLocaleString()} ({percentage}%)</div>;
         },
       },
       {
-        accessorKey: "status",
-        header: "Status",
-        cell: ({ row }) => {
-          const status = row.getValue("status") as string;
-          return (
-            <Badge 
-              variant={
-                status === "Active" ? "default" : 
-                status === "Pending" ? "secondary" : 
-                "destructive"
-              }
-              className="capitalize"
-            >
-              {status}
-            </Badge>
-          );
-        },
-      },
-      {
-        accessorKey: "category",
-        header: "Category",
-      },
-      {
-        accessorKey: "date",
-        header: ({ column }) => (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="h-auto p-0 font-semibold hover:bg-transparent"
-          >
-            Date
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        ),
-        cell: ({ row }) => {
-          const date = new Date(row.getValue("date"));
-          return <div>{date.toLocaleDateString()}</div>;
-        },
-      },
-      {
-        accessorKey: "performance",
+        accessorKey: "messagesRead",
         header: ({ column }) => (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             className="h-auto p-0 font-semibold hover:bg-transparent justify-end"
           >
-            Performance
+            No. of messages read (% w.r.t. delivery)
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         ),
         cell: ({ row }) => {
-          const performance = parseInt(row.getValue("performance"));
-          return (
-            <div className="text-right">
-              <div 
-                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                  performance >= 80 ? "bg-analytics-accent/20 text-analytics-accent" :
-                  performance >= 60 ? "bg-analytics-warning/20 text-analytics-warning" :
-                  "bg-analytics-error/20 text-analytics-error"
-                }`}
+          const read = parseInt(row.getValue("messagesRead"));
+          const delivered = parseInt(row.getValue("messagesDelivered"));
+          const percentage = Math.round((read / delivered) * 100);
+          return <div className="text-right font-medium">{read.toLocaleString()} ({percentage}%)</div>;
+        },
+      },
+      {
+        accessorKey: "consumersClicked",
+        header: ({ column }) => (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="h-auto p-0 font-semibold hover:bg-transparent justify-end"
+          >
+            No. of consumers clicked form (% w.r.t. read)
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        ),
+        cell: ({ row }) => {
+          const clicked = parseInt(row.getValue("consumersClicked"));
+          const read = parseInt(row.getValue("messagesRead"));
+          const percentage = Math.round((clicked / read) * 100);
+          return <div className="text-right font-medium">{clicked.toLocaleString()} ({percentage}%)</div>;
+        },
+      },
+      {
+        accessorKey: "consumersSubmitted",
+        header: ({ column }) => (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="h-auto p-0 font-semibold hover:bg-transparent justify-end"
+          >
+            No. of consumers submitted response (% w.r.t. delivered)
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        ),
+        cell: ({ row }) => {
+          const submitted = parseInt(row.getValue("consumersSubmitted"));
+          const delivered = parseInt(row.getValue("messagesDelivered"));
+          const percentage = Math.round((submitted / delivered) * 100);
+          return <div className="text-right font-medium">{submitted.toLocaleString()} ({percentage}%)</div>;
+        },
+      },
+      // Grouped header for "Facing Meter issue"
+      {
+        header: "Facing Meter issue (% w.r.t. response recd)",
+        columns: [
+          {
+            accessorKey: "higherMeterReading",
+            header: ({ column }) => (
+              <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                className="h-auto p-0 font-semibold hover:bg-transparent justify-end"
               >
-                {performance}%
-              </div>
-            </div>
-          );
-        },
+                Higher meter reading (% w.r.t. issue faced)
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            ),
+            cell: ({ row }) => {
+              const value = parseInt(row.getValue("higherMeterReading"));
+              return <div className="text-right font-medium">{value}%</div>;
+            },
+          },
+          {
+            accessorKey: "amountCharged",
+            header: ({ column }) => (
+              <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                className="h-auto p-0 font-semibold hover:bg-transparent justify-end"
+              >
+                Amount charged during installation (% w.r.t. issue faced)
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            ),
+            cell: ({ row }) => {
+              const value = parseInt(row.getValue("amountCharged"));
+              return <div className="text-right font-medium">{value}%</div>;
+            },
+          },
+          {
+            accessorKey: "installationNotProper",
+            header: ({ column }) => (
+              <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                className="h-auto p-0 font-semibold hover:bg-transparent justify-end"
+              >
+                Installation not proper (% w.r.t. issue faced)
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            ),
+            cell: ({ row }) => {
+              const value = parseInt(row.getValue("installationNotProper"));
+              return <div className="text-right font-medium">{value}%</div>;
+            },
+          },
+          {
+            accessorKey: "mobileAppNotWorking",
+            header: ({ column }) => (
+              <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                className="h-auto p-0 font-semibold hover:bg-transparent justify-end"
+              >
+                Mobile app not working properly (% w.r.t. issue faced)
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            ),
+            cell: ({ row }) => {
+              const value = parseInt(row.getValue("mobileAppNotWorking"));
+              return <div className="text-right font-medium">{value}%</div>;
+            },
+          },
+        ],
       },
     ],
     []
@@ -362,11 +393,15 @@ export function DataTable({ data, title }: DataTableProps) {
       <div className="rounded-lg border bg-white shadow-card overflow-hidden">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
+            {table.getHeaderGroups().map((headerGroup, index) => (
               <TableRow key={headerGroup.id} className="bg-analytics-secondary/30">
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} className="font-semibold">
+                    <TableHead 
+                      key={header.id} 
+                      className="font-semibold text-center border-r border-analytics-secondary/20 last:border-r-0"
+                      colSpan={header.colSpan}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
