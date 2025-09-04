@@ -61,7 +61,24 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Analytics Dashboard Colors
+				'dashboard-bg': 'hsl(var(--dashboard-bg))',
+				'analytics-primary': 'hsl(var(--analytics-primary))',
+				'analytics-secondary': 'hsl(var(--analytics-secondary))',
+				'analytics-accent': 'hsl(var(--analytics-accent))',
+				'analytics-warning': 'hsl(var(--analytics-warning))',
+				'analytics-error': 'hsl(var(--analytics-error))'
+			},
+			backgroundImage: {
+				'gradient-primary': 'var(--gradient-primary)',
+				'gradient-secondary': 'var(--gradient-secondary)',
+				'gradient-dashboard': 'var(--gradient-dashboard)'
+			},
+			boxShadow: {
+				'card': 'var(--shadow-card)',
+				'elevated': 'var(--shadow-elevated)',
+				'float': 'var(--shadow-float)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
