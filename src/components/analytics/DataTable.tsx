@@ -393,14 +393,24 @@ export function DataTable({ data, title }: DataTableProps) {
       <div className="rounded-lg border bg-white shadow-card overflow-hidden">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup, index) => (
+            {table.getHeaderGroups().map((headerGroup, groupIndex) => (
               <TableRow key={headerGroup.id} className="bg-analytics-secondary/30">
                 {headerGroup.headers.map((header) => {
+                  // Check if this is a single column that should span full height
+                  const isSingleColumn = !header.subHeaders || header.subHeaders.length === 0;
+                  const isFirstRow = groupIndex === 0;
+                  
+                  // For single columns, only render in first row with rowSpan
+                  if (isSingleColumn && !isFirstRow) {
+                    return null;
+                  }
+                  
                   return (
                     <TableHead 
                       key={header.id} 
-                      className="font-semibold text-center border-r border-analytics-secondary/20 last:border-r-0"
+                      className="font-semibold text-center border-r border-analytics-secondary/20 last:border-r-0 align-middle"
                       colSpan={header.colSpan}
+                      rowSpan={isSingleColumn ? table.getHeaderGroups().length : 1}
                     >
                       {header.isPlaceholder
                         ? null
